@@ -4,7 +4,7 @@ Created on Tue Jun 19 16:23:26 2018
 
 @author: jinno
 """
-
+#ランダムフォレスト
 from sklearn.datasets import load_digits
 #手書きデータの読み込み
 digits=load_digits(return_X_y=True)
