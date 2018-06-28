@@ -1,0 +1,147 @@
+\documentclass[12pt, a4paper]{jsarticle}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{cases}
+\usepackage{graphicx}
+\usepackage{url}
+
+%%%%%%%%%%%%%%%%%%%%% タイトル %%%%%%%%%%%%%%%%%%%%%
+\title{前処理によるCG法アルゴリズムの収束速度変化について}
+
+%%%%%%%%%%%%%%%%%%%%% 所属学科，氏名 %%%%%%%%%%%%%%%%%%%%%
+\author{応用数学科　学籍番号　1416061 甚野広平}
+
+%%%%%%%%%%%%%%%%%%%%% 日付 %%%%%%%%%%%%%%%%%%%%%
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{非定常反復法}%%太文字化%%
+以前定常反復法は収束への振る舞いが一定で、反復式が簡単であるため、手軽に広く利用されていると学んだ。しかし、近年各反復ごとに情報を入れ替えて収束をより早める工夫を行う{\bf 非定常反復法(non-stationary iterative method)}が非常に多く開発・改良されている。これらの解法は単独で利用されるだけでなく、前処理と呼ばれる工夫を伴って利用される。これは元の方程式よりも解きやすい方程式に変形して解くという考えに基づいている。
+
+\section{CG法}%%アルゴリズムと太文字化%%
+係数行列{\it A}が正定値対称行列の場合、特に有効とされている方法が{\bf 共役勾配(conjugate gradient; CG)法}である。{\it A}が対称行列であればCG法のアルゴリズムは適用可能であるが、{\it A}が対称正定値行列であれば、高々{\it n}回({\it A}の次元)の反復での収束が理論的に示されていて、丸め誤差が入らないと仮定すれば、CG法は直説法とも考えられる。
+しかし、丸め誤差に極端に弱いことから注目されず、1970年代以降に大規模疎行列の反復法として注目されるようになった。\\
+
+\newpage
+以下にアルゴリズムを示す。
+
+
+\noindent 1.  $\bm{x^{(0)}} $を決め、$\bm{p^{(0)}}=\bm{r^{(0)}}=\bm{b}-{\it A}\bm{x^{(0)}}$を求める. \\
+2.\ $ {\it k}=0,1,2,\cdots ,{\it n}-1$について、次の手順を繰り返す. 
+\begin{align*}
+\alpha ^{({\it k})} &= \frac{(\bm{p}^{({\it k})},\bm{r}^{({\it k})})}{(\bm{p}^{({\it k})},{\it A}\bm{p^{({\it k})}})} \\
+\bm{x^{({\it k}+1)}}&= \bm{x^{({\it k})}}+\alpha ^{({\it k})}\bm{p}^{({\it k})}\\
+\bm{r}^{({\it k}+1)}&=\bm{r}^{({\it k})}-{\it A} \bm{p}^{({\it k})}\\
+\text{収束判定}  &( || \bm{r}^{({\it k}+1)} || ) \leqq \epsilon ||\bm{b} ||など)\\
+\beta ^{({\it k})} &= -\frac{({\it A}\bm{p^{({\it k})}},\bm{r}^{({\it k}+1)})}{({\it A}\bm{p^{({\it k})}},\bm{p}^{({\it k})})}\\
+\bm{p}^{({\it k}+1)} &= \bm{r}^{({\it k}+1)}+\beta ^{({\it k})}\bm{p}^{({\it k})}
+\end{align*}
+
+\section{前処理付きCG法}
+CG法では、固有値全体が密集し、条件数が小さいほど収束が早いとされている。そこで、あらかじめ解きやすい方程式に変形してCG法を適用することを考える。このような処理を前処理(preconditioning)といい、固有値分布が改善されれば、早く収束することが期待される。\\
+
+以下にアルゴリズムを示す。\\
+
+\noindent 1.  $\bm{x^{(0)}} $を決め、$\bm{r^{(0)}}=\bm{b}-{\it A}\bm{x^{(0)}}$ ,$\bm{z^{(0)}}= {\it M}^{-1} \bm{r^{(0)}}$ を求め,$\bm{p^{(0)}}=\bm{z^{(0)}}$とする. \\
+2.\ $ {\it k}=0,1,2,\cdots ,{\it n}-1$について、次の手順を繰り返す. 
+\begin{align*}
+\alpha ^{({\it k})} &= \frac{(\bm{z}^{({\it k})},\bm{r}^{({\it k})})}{(\bm{p}^{({\it k})},{\it A}\bm{p^{({\it k})}})} \\
+\bm{x^{({\it k}+1)}}&= \bm{x^{({\it k})}}+\alpha ^{({\it k})}\bm{p}^{({\it k})}\\
+\bm{r}^{({\it k}+1)}&=\bm{r}^{({\it k})}-\alpha ^{({\it k})}{\it A} \bm{p}^{({\it k})}\\
+\bm{z}^{({\it k}+1)} &= {\it M}^{-1}\bm{r}^{({\it k}+1)}\\
+\beta ^{({\it k})} &= -\frac{(\bm{r}^{({\it k}+1)},\bm{z}^{({\it k}+1)})}{(\bm{r}^{({\it k})},\bm{z}^{({\it k})})}\\
+\bm{p}^{({\it k}+1)} &= \bm{z}^{({\it k}+1)}+\beta ^{({\it k})}\bm{p}^{({\it k})}
+\end{align*}
+
+
+ここで前処理行列の選び方が問題となる。条件数を下げるには${\it M^{-1}}$を{\it A}の逆行列に近似するように選ぶとよいが、近似逆行列は計算コストが大きく、前処理の意味がない。
+以下に代表的な前処理行列を示す。
+
+\subsection{対角スケーリング行列}%%数式%%
+行列${\it A} =({\it a}_{ij})$の対角成分を用いて,${\it M}=diag \{ a_{11} ,a_{22},...,a_{nn}\}$ とする方法であり、ヤコビ前処理とも呼ばれる。対角成分の絶対値が大きい場合に効果が大きいとされる。
+
+
+\subsection{SSOR前処理}%%数式%%
+SSOR(symmetric SOR)法は定常反復法の1つで、その反復行列を活用した前処理である。
+${\it A} =E + D+F$と分離したとき、前処理行列は次のように与えられる。
+${\it M}=({\it D}+\omega{\it E}){\it D^{-1}}({\it D}+\omega{\it F})$
+
+\subsection{不完全コレスキー分解前処理}%%数式%%
+不完全コレスキー(imcomplete Cholesky)分解とは、コレスキー分解の一部の計算を行わず、不完全な分解を行うものである。一般に、誤差項を行列{\it R}で表すと、
+${\it A}={\it L}{\it D}{\it L^{\mathrm{T}}}+{\it R}$
+の形式に分解を行い、前処理行列は${\it M} = {\it L}{\it D}{\it L^{\mathrm{T}}}$とする。
+
+\section{実行準備}
+ここで、大規模疎行列の前処理行列の選び方による反復回数および計算速度の比較を行う。
+計算に使用する行列に関しては以下の4つの行列を使用する。(行列はMATLABにより生成した。)\\
+収束判定に利用する$ \epsilon は \epsilon =0.1$を用いた。
+
+\begin{align}
+{\it A}1 &= sprandsym(500,50,0.5,1) ... \cite{sprandsym}\\  
+{\it A}2 &= delsq(numgrid('S',20)) ...\cite{delsq} \\
+{\it A}3 &= sprandsym(1000,10,0.8,1)\\
+{\it A}4 &= gallery('tridiag',500,-50,50,-50) ...\cite{gallery}
+\end{align}
+
+$また、\bm{b}は求める真の解\bm{x}がすべて1(\bm{b} ={\it A} \bm{x} )になるように 設定し、初期値\bm{x}_{0}の値はすべて10とする。$
+\section{予想}
+･{\it A}1は{\it A}3と比べて半分の次元であるから、反復回数はより小さいと考えられる。
+･{\it A}4は対角要素が他の行列と比べると大きいので、対角スケーリング行列を前処理行列とした場合が最も収束が速いと予想される。
+
+\section{実行結果}
+\begin{table}[htb]
+  \begin{tabular}{|l|c|r||r|} \hline
+    {\it A}1 & 処理時間(nanotime) & 反復回数(回)  \\ \hline \hline
+    対角スケーリング行列 & 3.28E+09
+ & 3  \\
+    SSOR前処理 & 3.54E+09 & 3  \\
+    不完全コレスキー分解前処理 & 2.26E+09 & 2  \\ \hline
+  \end{tabular}
+\end{table}
+
+\begin{table}[htb]
+  \begin{tabular}{|l|c|r||r|} \hline
+    {\it A}2 & 処理時間(nanotime) & 反復回数(回)  \\ \hline \hline
+    対角スケーリング行列 & 4.75E+09
+ & 19  \\
+    SSOR前処理 & 1.73E+09 & 7  \\
+    不完全コレスキー分解前処理 & 7.9E+10 & 収束せず  \\ \hline
+  \end{tabular}
+\end{table}
+
+\begin{table}[htb]
+  \begin{tabular}{|l|c|r||r|} \hline
+    {\it A}3 & 処理時間(nanotime) & 反復回数(回)  \\ \hline \hline
+    対角スケーリング行列 & 2.22E+10
+ & 2  \\
+    SSOR前処理 & 2.58E+10 & 2  \\
+    不完全コレスキー分解前処理 & 1.38E+10 & 1  \\ \hline
+  \end{tabular}
+\end{table}
+
+\begin{table}[htb]
+  \begin{tabular}{|l|c|r||r|} \hline
+    {\it A}4 & 処理時間(nanotime) & 反復回数(回)  \\ \hline \hline
+    対角スケーリング行列 & 1.01E+10
+ & 8  \\
+    SSOR前処理 & 9.09E+10 & 85  \\
+    不完全コレスキー分解前処理 & 6.17E+11 & 収束せず  \\ \hline
+  \end{tabular}
+\end{table}
+\section{考察}
+1つ目の予想に関しては処理時間自体は短くなっているが、反復回数は{\it A}1の方が多くなった。これは、行列の次元が大きくなった事で行列に対する値の0の割合が大きくなり、より疎行列に近くなったためだと考えられる。\\
+2つ目の予想に関しては、予想通り対角スケーリング行列が最も短い時間で収束した事が読み取れる。\\
+また、{\it A}2,{\it A}3に関して、不完全コレスキーでは収束しなかった。これは他の行列に比べて行列における0の割合が少ないためであると考えられる。
+\section{感想}
+今回様々な行列を異なる処理の仕方で計算し、その処理速度を比較した。その結果、行列の特徴によって推奨される前処理の方法がある事を視覚的に理解する事が出来た。今後扱っていく行列はより次数の大きいものもあると予想されるので、行列の特徴を理解し、よりよい処理方法を検討していくようにしたい。
+
+\begin{thebibliography}{99}
+\bibitem{sprandsym}  sprandsym()はスパース対称ランダム行列を生成する関数\\　\url{https://jp.mathworks.com/help/matlab/ref/sprandsym.html?searchHighlight=sprand&s_tid=doc_srchtitle}
+\bibitem{delsq} (delsq(numgrid('S',20))はDirichlet 境界条件による 100 行 100 列の正方形グリッド上の負の 2 次元 5 点離散ラプラシアン\\　\url{https://jp.mathworks.com/help/matlab/ref/ichol.html}
+\bibitem{gallery} A = gallery('tridiag',c,d,e) は、下対角要素が c、主対角要素が d、上対角要素が e となる三重対角行列\\ \url{https://jp.mathworks.com/help/matlab/ref/gallery.html}
+\end{thebibliography}
+\end{document}
