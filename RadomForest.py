@@ -54,7 +54,7 @@ import numpy as np
 #graph.write_png(file_name)
 i_tree = 0
 for tree_in_forest in classifier.estimators_:
-    file_name = "./tree_file/tree_visualization"+str(i_tree)+".pdf"
+    file_name = "./tree_data/tree_visualization"+str(i_tree)+".pdf"
     dot_data = tree.export_graphviz(tree_in_forest, # 決定木オブジェクトを一つ指定する
                                 out_file=None, # ファイルは介さずにGraphvizにdot言語データを渡すのでNone
                                 filled=True, # Trueにすると、分岐の際にどちらのノードに多く分類されたのか色で示してくれる
